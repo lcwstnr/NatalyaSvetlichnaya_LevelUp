@@ -3,8 +3,14 @@ package ru.levelp.at.homework2;
 public class LuckyTicketCalculate {
 
     public static Boolean luckyTicketCalculate(String numbers) {
+        if (numbers == null) {
+            throw new IllegalArgumentException("Номер не может быть null");
+        }
         if (numbers.length() != 6) {
-            throw new RuntimeException("Количество цифр не равно 6");
+            throw new IllegalArgumentException("Количество символов не равно 6");
+        }
+        if (!numbers.matches("\\d+")) {
+            throw new IllegalArgumentException("Номер должен состоять из цифр");
         }
         String part1 = numbers.substring(0, 3);
         String part2 = numbers.substring(3, 6);

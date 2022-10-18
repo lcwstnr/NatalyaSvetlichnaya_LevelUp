@@ -16,15 +16,24 @@ public class NegativeTicketTest extends BaseLuckyTicketCalculateTest {
         Assertions.assertThat(actualOutput).isEqualTo(EXPECTED_OUTPUT);
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Количество цифр не равно 6")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Количество символов не равно 6")
     public void listOfNumberMoreThanSixTest() {
        LuckyTicketCalculate.luckyTicketCalculate("1234567");
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Количество цифр не равно 6")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Количество символов не равно 6")
     public void listOfNumberLessThanSixTest() {
         LuckyTicketCalculate.luckyTicketCalculate("12345");
     }
 
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Номер должен состоять из цифр")
+    public void listOfNumberContainsSymbolsTest() {
+        LuckyTicketCalculate.luckyTicketCalculate("123y45");
+    }
+
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Номер не может быть null")
+    public void listOfNumberIsNullTest() {
+        LuckyTicketCalculate.luckyTicketCalculate(null);
+    }
 
 }
