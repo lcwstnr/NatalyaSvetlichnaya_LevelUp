@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="PositiveTestsSuite">
+
+    <test name="Positive tests package">
+
+        <classes>
+            <class name="ru.levelp.at.LuckyTicket.PositiveTicketTest"/>
+        </classes>
+
+    </test>
+
+</suite>
