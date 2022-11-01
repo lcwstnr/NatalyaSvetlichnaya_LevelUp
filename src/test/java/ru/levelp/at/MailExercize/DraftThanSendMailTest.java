@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.levelp.at.homework3.GmailPage;
 
+import java.time.Duration;
 
 
 public class DraftThanSendMailTest {
@@ -19,16 +21,19 @@ public class DraftThanSendMailTest {
     private static final String BODY = "Тестовый текст";
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeEach
     public void setUp() {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     @Test
     public void createDraftThanSendMailTest() throws  InterruptedException {
-        GmailPage gmailPage = new GmailPage(driver);
+        GmailPage gmailPage = new GmailPage(driver, wait);
 
         gmailPage.openSignIn(MAIL_URL)
                 .signIn(EMAIL, PASSWORD)

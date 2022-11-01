@@ -5,13 +5,17 @@ import org.assertj.core.api.SoftAssertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class GmailPage {
 
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
-    public GmailPage(WebDriver driver) {
+    public GmailPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
+        this.wait = wait;
     }
 
     public GmailPage openSignIn(String url) {
@@ -19,25 +23,23 @@ public class GmailPage {
         return this;
     }
 
-    @SuppressWarnings("checkstyle:LineLength")
-    public GmailPage signIn(String login, String pass) throws InterruptedException {
+    public GmailPage signIn(String login, String pass) {
         driver.findElement(By.cssSelector("[data-action='sign in']")).click();
         WebElement inputMailBox = driver.findElement(By.id("identifierId"));
         inputMailBox.sendKeys(login);
         driver.findElement(By.id("identifierNext")).click();
-        Thread.sleep(5000);
-        WebElement inputPasswordBox = driver.findElement(By.id("password"))
-                .findElement(By.xpath(".//input[@type='password']"));
-        inputPasswordBox.sendKeys(pass);
+        WebElement inputPasswordBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+        WebElement inputPassword = inputPasswordBox.findElement(By.xpath(".//input[@type='password']"));
+        inputPassword.sendKeys(pass);
         driver.findElement(By.id("passwordNext")).click();
-        Thread.sleep(5000);
+        WebElement title = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//a[@role='button'][contains(@aria-label,'Аккаунт Google:')]")));
         return this;
     }
 
-    public GmailPage signOut() throws InterruptedException {
+    public GmailPage signOut() {
         driver.findElement(By.xpath("//a[@role='button'][contains(@aria-label,'Аккаунт Google:')]")).click();
-        Thread.sleep(2000);
-        driver.switchTo().frame("account");
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt("account"));
         driver.findElement(By.xpath("//a[div[text()='Выйти']]")).click();
         return this;
     }
@@ -49,12 +51,13 @@ public class GmailPage {
         return this;
     }
 
-    public GmailPage createMail(String login, String theme, String body) throws InterruptedException {
+    public GmailPage createMail(String login, String theme, String body) {
         driver.findElement(By.xpath("//div[@role='button'][text()='Написать']")).click();
-        Thread.sleep(1000);
-        WebElement inputRecipientBox = driver.findElement(By.cssSelector("[aria-label='Кому']"))
+        WebElement inputRecipientBox = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.cssSelector("[aria-label='Кому']")));
+        WebElement inputRecipient = inputRecipientBox
                 .findElement(By.cssSelector("input"));
-        inputRecipientBox.sendKeys(login + "\n");
+        inputRecipient.sendKeys(login + "\n");
         WebElement inputThemeBox = driver.findElement(By.xpath("//input[@name='subjectbox']"));
         inputThemeBox.sendKeys(theme);
         WebElement inputBodyBox = driver.findElement(By.xpath("//div[@role='textbox']"));
@@ -64,17 +67,18 @@ public class GmailPage {
     }
 
     public GmailPage safeDraft() {
-        driver.findElement(By.cssSelector("[data-tooltip='Сохранить и закрыть']")).click();
+        WebElement save = driver.findElement(By.cssSelector("[data-tooltip='Сохранить и закрыть']"));
+        save.click();
+        wait.until(ExpectedConditions.invisibilityOf(save));
         return this;
     }
 
-    public GmailPage checkDraft(String login, String theme, String body) throws InterruptedException {
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[text()='Черновики']")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//tr[.//span[text()='" + theme + "']]")).click();
-        Thread.sleep(2000);
-        WebElement form =  driver.findElement(By.xpath("//div[@role = 'dialog']"));
+    public GmailPage checkDraft(String login, String theme, String body) {
+        goingToPackage("Черновики");
+        wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//tr[.//span[text()='" + theme + "']]"))).click();
+        WebElement form = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//div[@role = 'dialog']")));
         String actualEmail = form.findElement(By.xpath(".//span[contains(@email,'@')]"))
                 .getAttribute("email");
         String actualSubject = form.findElement(By.xpath(".//input[@name='subject']")).getAttribute("value");
@@ -95,7 +99,9 @@ public class GmailPage {
     }
 
     public GmailPage sentMail() {
-        driver.findElement(By.xpath("//div[@role='button'][text()='Отправить']")).click();
+        WebElement sent = driver.findElement(By.xpath("//div[@role='button'][text()='Отправить']"));
+        sent.click();
+        wait.until(ExpectedConditions.invisibilityOf(sent));
         return this;
     }
 
@@ -105,19 +111,17 @@ public class GmailPage {
         return this;
     }
 
-    public GmailPage checkEmptyDraft() throws InterruptedException {
-        Thread.sleep(2000);
+    public GmailPage checkEmptyDraft() {
+        WebElement textArea = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//td[text()='Нет сохраненных черновиков.']")));
         driver.findElement(By.xpath("//td[text()='Нет сохраненных черновиков.']"));
         return this;
     }
 
-    public  GmailPage checkInbox(String login, String theme, String body) throws InterruptedException {
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[text()='Входящие']")).click();
-        Thread.sleep(3000);
-        driver.findElement(By.xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]")).click();
-        Thread.sleep(2000);
-        WebElement main = driver.findElement(By.xpath("//div[@role='main']"));
+    public GmailPage checkInbox(String login, String theme, String body) {
+        goingToPackage("Входящие");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]"))).click();
+        WebElement main = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@role='main']")));
         String actualEmail = main.findElement(By.xpath(".//span[contains(@email,'@')]"))
                 .getAttribute("email");
         String actualSubject = main.findElement(By.xpath(".//h2")).getText();
@@ -137,13 +141,13 @@ public class GmailPage {
         return this;
     }
 
-    public  GmailPage checkSent(String login, String theme, String body) throws InterruptedException {
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[text()='Отправленные']")).click();
-        Thread.sleep(3000);
-        driver.findElement(By.xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]")).click();
-        Thread.sleep(2000);
-        WebElement main = driver.findElement(By.xpath("//div[@role='main']"));
+    public GmailPage checkSent(String login, String theme, String body) {
+        goingToPackage("Отправленные");
+        wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By
+                        .xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]"))).click();
+        WebElement main = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//div[@role='main']")));
         String actualEmail = main.findElement(By.xpath(".//span[contains(@email,'@')]"))
                 .getAttribute("email");
         String actualSubject = main.findElement(By.xpath(".//h2")).getText();
@@ -163,13 +167,14 @@ public class GmailPage {
         return this;
     }
 
-    public GmailPage checkPackage(String login, String theme, String body) throws InterruptedException {
-        Thread.sleep(2000);
-        driver.findElement(By.cssSelector("[aria-label='Тест есть меню']")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]")).click();
-        Thread.sleep(2000);
-        WebElement main = driver.findElement(By.xpath("//div[@role='main']"));
+    public GmailPage checkPackage(String login, String theme, String body) {
+        wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.cssSelector("[aria-label='Тест есть меню']"))).click();
+        wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By
+                        .xpath("//div[@role='main']//tr[.//span[text()='" + theme + "']]"))).click();
+        WebElement main = wait.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//div[@role='main']")));
         String actualEmail = main.findElement(By.xpath(".//span[contains(@email,'@')]"))
                 .getAttribute("email");
         String actualSubject = main.findElement(By.xpath(".//h2")).getText();
@@ -193,6 +198,12 @@ public class GmailPage {
         driver.findElement(By.xpath("//span[text() = 'Ещё']")).click();
 
         return this;
+    }
+
+    private void goingToPackage(String text) {
+        WebElement draft = driver.findElement(By.xpath("//a[text()='" + text + "']"));
+        draft.click();
+        wait.until(ExpectedConditions.attributeToBe(By.xpath("//a[text()='" + text + "']"), "tabindex", "0"));
     }
 
 }
