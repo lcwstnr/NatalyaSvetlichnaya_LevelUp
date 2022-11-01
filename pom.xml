@@ -17,6 +17,7 @@
     </properties>
 
     <profiles>
+        <!-- Занятие 2
         <profile>
             <id>negative-test-suite</id>
             <activation>
@@ -38,6 +39,17 @@
                 <suite.name>AllTestSuite.xml</suite.name>
             </properties>
         </profile>
+        -->
+        <profile>
+            <id>AllMailTest</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <package>*/MailExercize/*Test.java</package>
+            </properties>
+        </profile>
+
     </profiles>
 
     <dependencies>
@@ -47,13 +59,25 @@
             <artifactId>assertj-core</artifactId>
             <!-- use 2.9.1 for Java 7 projects -->
             <version>3.23.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>7.6.0</version>
-            <scope>test</scope>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.3.0</version>
         </dependency>
 
     </dependencies>
@@ -67,11 +91,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
+
                 <configuration>
+                    <!-- Занятие 2
                     <suiteXmlFiles>
                         <suiteXmlFile>${suite.base.dir}/${suite.name}</suiteXmlFile>
                     </suiteXmlFiles>
+                    -->
+                    <includes>
+                        <include>${package}</include>
+                    </includes>
                 </configuration>
+
             </plugin>
 
         </plugins>
